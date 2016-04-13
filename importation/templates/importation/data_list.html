@@ -1,0 +1,39 @@
+{% extends "importation/layout.html" %}
+
+{% block titre %}Base de données{% endblock %}
+
+{% block contentImportation %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <table id="data_list" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Type de vente</th>
+                    <th>Type de consommation</th>
+                    <th>Zone stratégique</th>
+                    <th>Ville</th>
+                    <th>Date</th>
+                    <th>Vente</th>
+                </tr>
+            </thead>
+
+             <tbody>
+                {% for fich in data_list %}
+                    {% for vente in fich.ventes %}
+                        <tr>
+                            <td>{{ vente.typeVente }}</td>
+                            <td>{{ vente.typeConsommation }}</td>
+                            <td>{{ vente.zone }}</td>
+                            <td>{{ vente.ville }}</td>
+                            <td>{{ vente.date|date:"M Y" }}</td>
+                            <td>{{ vente.vente }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

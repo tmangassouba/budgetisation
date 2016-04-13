@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block titre %}Import{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            Import
+        </h1>
+        <ol class="breadcrumb">
+            <li class="active">
+                <i class="glyphicon glyphicon-import"></i> <a href="{% url 'importer' %}" title="Importer un fichier">Importer</a>
+            </li>
+            <li class="active">
+                <i class="glyphicon glyphicon-list-alt"></i> <a href="{% url 'files_list' %}" title="Consulter la liste des importations">Imports</a>
+            </li>
+            <li class="active">
+                <i class="glyphicon glyphicon-hdd"></i> <a href="{% url 'data_list' %}" title="Consulter l'ensemble des ventes importées">Base de donées</a>
+            </li>
+        </ol>
+    </div>
+</div>
+
+{% block contentImportation %}{% endblock %}
+
+{% endblock %}

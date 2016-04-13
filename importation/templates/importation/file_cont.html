@@ -1,0 +1,38 @@
+{% extends "importation/layout.html" %}
+
+{% block titre %}Imports : {{ file_cont.importDate }}{% endblock %}
+
+{% block contentImportation %}
+
+<div class="row">
+    <h2>{{ file_cont.description }}</h2>
+    <div class="col-lg-12">
+        <table id="data_list" class="display" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Type de vente</th>
+                    <th>Type de consommation</th>
+                    <th>Zone stratégique</th>
+                    <th>Ville</th>
+                    <th>Date</th>
+                    <th>Vente</th>
+                </tr>
+            </thead>
+
+             <tbody>
+                {% for vente in file_cont.ventes %}
+                <tr>
+                    <td>{{ vente.typeVente }}</td>
+                    <td>{{ vente.typeConsommation }}</td>
+                    <td>{{ vente.zone }}</td>
+                    <td>{{ vente.ville }}</td>
+                    <td>{{ vente.date|date:"M Y" }}</td>
+                    <td>{{ vente.vente }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

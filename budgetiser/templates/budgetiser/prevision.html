@@ -1,0 +1,35 @@
+{% extends "budgetiser/layout.html" %}
+
+{% block titre %}Prévisions{% endblock %}
+
+{% block subcontent %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row">
+            <h3>Prévisions</h3>
+            <div class="col-lg-12">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Année : </label>
+                        <select name="annee">
+                            <option>2011</option>
+                            <option>2012</option>
+                            <option>2013</option>
+                            <option>2014</option>
+                            <option>2015</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                {{ data }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

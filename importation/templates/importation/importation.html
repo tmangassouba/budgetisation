@@ -1,0 +1,85 @@
+{% extends "importation/layout.html" %}
+
+{% block contentImportation %}
+
+<!-- Message -->
+{% if message %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fa fa-info-circle"></i> {{ message }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+     <div class="col-lg-6">
+          <form role="form" method="post" action="" enctype="multipart/form-data" >
+              {% csrf_token %}
+              <div class="form-group">
+                  <label>Description</label>
+                  <input class="form-control" name="description">
+              </div>
+              <div class="form-group">
+                  <label>Type de fichier</label>
+                  <select class="form-control" name="typeFichier">
+                      <option value="Excel">Excel</option>
+                      <option value="CSV">CSV</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label>File input</label>
+                  <input type="file" name="fichier">
+              </div>
+              <button type="submit" class="btn btn-default">Importer</button>
+              <button type="reset" class="btn btn-default">Reset</button>
+           </form>
+     </div>
+ </div>
+<br><br><br><br><br><br><br><br><br>
+<!--
+<br>
+
+ <div class="row">
+     <form role="form" method="post" action="" enctype="multipart/form-data" class="col-lg-6" >
+         {% csrf_token %}
+
+         <label>Feuille : </label>
+         <select name="feuille" class="form-control">
+             {% for sheet in sheets %}
+             <option value="{{ sheet }}">{{ sheet }}</option>
+             {% endfor %}
+         </select>
+         <button type="submit" class="btn btn-default">Voir</button>
+         <button type="reset" class="btn btn-default">Sauvegarder</button>
+     </form>
+ </div>
+ <br>
+
+<div class="row">
+    <h3>Données de la feuille</h3>
+    <div class="col-lg-12">
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+            <tr>
+                {% for colone in colones %}
+                    <th>{{ colone }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for ligne in donnees %}
+            <tr>
+                {% for donnee in ligne %}
+                    <td>{{ donnee }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+-->
+{% endblock %}

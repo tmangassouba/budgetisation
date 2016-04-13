@@ -1,0 +1,18 @@
+{% extends "importation/layout.html" %}
+
+{% block titre %}Imports{% endblock %}
+
+{% block contentImportation %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Etes vous sûr de vouloir supprimer ce fichier ?</h3>
+        <form role="form" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Oui</button>
+            <a href="{% url 'files_list' %}"><button type="button" class="btn btn-default">Non</button></a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

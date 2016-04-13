@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block titre %}Budgétisation{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            Budgétisation
+        </h1>
+        <ol class="breadcrumb">
+            <li class="active">
+                <a href="{% url 'analyse' %}"><i class="fa fa-fw fa-table"></i> Budgétisation</a>
+            </li>
+            <li class="active">
+                <a href="{% url 'prevision' %}"><i class="fa fa-fw fa-table"></i> Prévision</a>
+            </li>
+        </ol>
+    </div>
+</div>
+
+{% block subcontent %}
+
+{% endblock %}
+
+{% endblock %}
