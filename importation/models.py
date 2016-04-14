@@ -22,6 +22,6 @@ class Vente(EmbeddedDocument):
 class Fichier(Document):
     importDate = DateTimeField(auto_now=False)
     editDate = DateTimeField(default=datetime.datetime.now())
-    description = StringField(required=False)
+    description = StringField(required=True)
     # fichier = FileField(upload_to="files/")
     ventes = ListField(EmbeddedDocumentField(Vente))

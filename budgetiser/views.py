@@ -16,8 +16,10 @@ def analyse_desciptive(request):
 def prevision(request):
     page = "budget"
     fichiers = Fichier.objects.all()
-    dataframe = pd.DataFrame()
+    dataframe = pd.DataFrame(Fichier.ventes)
     for fich in fichiers:
-        data = pd.DataFrame(fich, fich.index())
+        data = pd.DataFrame(fich.ventes)
         dataframe.append(data)
+    # annee_max = dataframe.loc[:, 'vente'].max
+    # annee_min = dataframe[2].min
     return render(request, 'budgetiser/prevision.html', locals())

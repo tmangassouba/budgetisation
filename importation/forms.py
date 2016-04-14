@@ -5,4 +5,4 @@ from django import forms
 class FichierForm(forms.Form):
     typeFichier = forms.CharField()
     fichier = forms.FileField()
-    description = forms.CharField(required=False)
+    description = forms.CharField(required=True)

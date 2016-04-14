@@ -66,7 +66,7 @@ def importer(request):
                 except XLRDError:
                     message = "Format fichier incorrect"
         else:
-            message = "Veiller séléctionner un fichier !"
+            message = "Fields can't be blank !"
     else:
         form = FichierForm()
     return render(request, 'importation/importation.html', locals())
@@ -81,7 +81,7 @@ def traitement(datatframe, description):
         format_fichier = ["Années",
                           "Type de vente",
                           "Type de consommation",
-                          "Zone",
+                          "Zone Stratégique",
                           "Ville",
                           "janvier",
                           "février",
