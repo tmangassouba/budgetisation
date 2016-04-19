@@ -53,8 +53,10 @@
 </div>
 {{ villes }}<br>
 {{ types_vente }}<br>
-{{ ss }}
-
+<!--{{ result }}-->
+{% for r in result %}
+    {{ r }} - {{ r }}<br>
+{% endfor %}
 <!--{% for fich in fichiers %}
     {% for vente in fich.ventes %}
         {{ vente.date }} - {{ vente.vente }} <br>

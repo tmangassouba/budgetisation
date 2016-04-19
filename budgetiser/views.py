@@ -3,7 +3,7 @@ from importation.models import Fichier
 from budgetiser.forms import PrevisionForm
 from datetime import datetime
 import pandas as pd
-# from django_pandas.io import read_frame
+import numpy as np
 import pycast as pc
 
 
@@ -43,12 +43,17 @@ def prevision(request):
                 for ville in villes:
                     pass"""
             dataf = dataframe[(dataframe.typeVente == "Ventes hors taxes") & (dataframe.ville == "Kolda")]
-            serie = pd.Series(dataf["vente"].values, index=dataf["date"].values)
+            serie = pc.common.timeseries.TimeSeries()
+            for data in dataf.values:
+                # temps = (data[4] - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+                temps = pc.common.timeseries.TimeSeries.convert_timestamp_to_epoch(data[4].strftime('%Y-%m-%d'), '%Y-%m-%d')
+                serie.add_entry(temps, data[5])
+
             result = pd.Series()
 
             if methode == "Winter":
-                winter = pc.methods.exponentialsmoothing.HoltWintersMethod(seasonLength=3, valuesToForecast=12)
-                result = winter.execute(serie)
+                wint = pc.methods.exponentialsmoothing.HoltMethod(valuesToForecast=12)
+                result = wint.execute(serie)
             elif methode == "Holt":
                 pass
         else:

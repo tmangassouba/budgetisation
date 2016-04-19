@@ -16,7 +16,7 @@ class Vente(EmbeddedDocument):
     zone = StringField(required=True)
     ville = StringField(required=True)
     date = DateTimeField(required=True)
-    vente = IntField(required=True)
+    vente = LongField(required=True)
 
 
 class Fichier(Document):
@@ -25,3 +25,14 @@ class Fichier(Document):
     description = StringField(required=True)
     # fichier = FileField(upload_to="files/")
     ventes = ListField(EmbeddedDocumentField(Vente))
+
+
+class Parametres(Document):
+    annee_max = IntField()
+    annee_min = IntField()
+
+
+class DoneesTypeConsaommation(Document):
+    nom = StringField()
+    annee = IntField()
+    donnee = LongField()
