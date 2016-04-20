@@ -27,26 +27,26 @@ class Fichier(Document):
     ventes = ListField(EmbeddedDocumentField(Vente))
 
 
-class VenteData(Document):
+class VenteData(EmbeddedDocument):
     vente = LongField()
     date = DateTimeField()
 
 
 class Mesure(Document):
-    nom = StringField()
+    nom_mesure = StringField()
     donnees = ListField(EmbeddedDocumentField(VenteData))
 
 
 class DimensionTypeConsommation(Document):
-    mesure = StringField()
-    nom = StringField()
+    nom_mesure = StringField()
+    nom_type_consommation = StringField()
     donnees = ListField(EmbeddedDocumentField(VenteData))
 
 
 class DimensionZone(Document):
-    mesure = StringField()
-    type_consommation = StringField()
-    nom = StringField()
+    nom_mesure = StringField()
+    nom_type_consommation = StringField()
+    nom_zone = StringField()
     donnees = ListField(EmbeddedDocumentField(VenteData))
 
 
@@ -54,6 +54,6 @@ class Parametre(Document):
     annee_max = IntField()
     annee_min = IntField()
     liste_mesure = ListField()
-    liste_dimension = ListField()
+    liste_type_consommations = ListField()
     liste_zone = ListField()
     liste_ville = ListField()
