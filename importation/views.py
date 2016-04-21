@@ -3,7 +3,7 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
 from importation.forms import FichierForm
-from importation.models import Fichier, Vente, Parametre, DimensionTypeConsommation, DimensionZone, Mesure
+from importation.models import Fichier, Vente, Parametre, DimensionTypeConsommation, DimensionZone, Mesure, VenteData
 from xlrd import *
 import pandas as pd
 import datetime
@@ -101,6 +101,11 @@ def format_fichier(datatframe):
     Le fichier à importer doit avoir les colones suivantes : Années, Type de vente, Type de consommation, Zone
     Stratégique, Ville, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre et
     décembre.
+    {
+     A ajouter :
+     - vérifier si la date entrée pour une ville est déjà dans la base de données (isin : pandas).
+     - pd.isnull(df1) # Teste si les lignes contiennent ou non NaN
+    }
     :param datatframe: Contenu du fichier importé.
     :return: True si le format est correspond, Folse si le format le correspond pas.
     """
@@ -168,6 +173,10 @@ def traitement(datatframe, description):
         fichier.importDate = datetime.datetime.now()
         fichier.editDate = datetime.datetime.now()
         fichier.description = description
+
+        # Data frame contenant les ventes
+        ventes_dataframe = pd.DataFrame(list(),
+                                        columns=("typeVente", "typeConsommation", "zone", "ville", "date", "vente"))
         for raw in donnees:
             # Mis à jour année maximum et année minimum
             if (annee_max is None) or (annee_max < raw[0]):
@@ -191,6 +200,10 @@ def traitement(datatframe, description):
                     vente.date = datetime.datetime(raw[0], i-4, 1)
                     vente.vente = raw[i]
                     fichier.ventes.append(vente)
+                    # Mettre les ventes dans un Data Frame.
+                    ventes_dataframe.loc[len(ventes_dataframe)] = [raw[1], raw[2], raw[3], raw[4], vente.date, raw[i]]
+            if ventes_dataframe.empty:
+                raise Exception("Data frame  datas error !")
 
         # Mis à jour des paramètres.
         if not parametre:
@@ -201,26 +214,75 @@ def traitement(datatframe, description):
         parametre.liste_type_consommations = list(type_consommations)
         parametre.liste_zone = list(zones)
         parametre.liste_ville = list(villes)
-        # parametre.save()
 
-        # Mis à jour des données des mesures, des types de consommation et des zones (Séparer en deux afin de réduire
-        # le nombre d'accès à la base de données).
+        # Mis à jour des données des mesures et des types de consommation et des zones
         for mesure in mesures:
-            mesure_get = Mesure.objects.get(nom_mesure=mesure)
             for conso in type_consommations:
-                type_conso_get = DimensionTypeConsommation.objects.get(nom_mesure=mesure, nom_type_consommation=conso)
-                for raw in donnees:
-                    pass
+                # Mise à jour zone
+                for zone in zones:
+                    zone_get = DimensionZone.objects.filter(nom_mesure=mesure,
+                                                            nom_type_consommation=conso,
+                                                            nom_zone=zone)
+                    if zone_get:
+                        zone_get = DimensionZone.objects.get(id=zone_get[0].id)
+                    else:
+                        zone_get = DimensionZone()
+                        zone_get.nom_mesure = mesure
+                        zone_get.nom_type_consommation = conso
+                        zone_get.nom_zone = zone
+                        zone_get.donnees = list()
+                    ventes_zone = ventes_dataframe[(ventes_dataframe.typeVente == mesure) &
+                                                   (ventes_dataframe.typeConsommation == conso) &
+                                                   (ventes_dataframe.zone == zone)].groupby('date').sum()
+                    if not ventes_zone.empty:
+                        for i in range(0, len(ventes_zone.values)):
+                            vent = VenteData()
+                            vent.vente = ventes_zone.values[i]
+                            vent.date = ventes_zone.index[i]
+                            zone_get.donnees.append(vent)
+                        zone_get.save()
 
-        for mesure in mesures:
-            mesure_get = Mesure.objects.get(nom_mesure=mesure)
-            for zone in zones:
-                zone_get = DimensionZone.objects.get(nom_mesure=mesure, nom_type_consommation=conso, nom_zone=zone)
-                for raw in donnees:
-                    pass
+                # Mise à jour dimension (type de consommation)
+                type_conso_get = DimensionTypeConsommation.objects.filter(nom_mesure=mesure,
+                                                                          nom_type_consommation=conso)
+                if type_conso_get:
+                    type_conso_get = DimensionTypeConsommation.objects.get(id=type_conso_get[0].id)
+                else:
+                    type_conso_get = DimensionTypeConsommation()
+                    type_conso_get.nom_mesure = mesure
+                    type_conso_get.nom_type_consommation = conso
+                    type_conso_get.donnees = list()
 
-        # Sauvegard du contenu du fichier.
-        # fichier.save()
+                ventes_dim = ventes_dataframe[(ventes_dataframe.typeVente == mesure) &
+                                              (ventes_dataframe.typeConsommation == conso)].groupby('date').sum()
+                if not ventes_dim.empty:
+                    for i in range(0, len(ventes_dim.values)):
+                        vent = VenteData()
+                        vent.vente = ventes_dim.values[i]
+                        vent.date = ventes_dim.index[i]
+                        type_conso_get.donnees.append(vent)
+                    type_conso_get.save()
+
+            # Mise à jour Mesure (Type de vente)
+            mesure_get = Mesure.objects.filter(nom_mesure=mesure)
+            if mesure_get:
+                mesure_get = Mesure.objects.get(id=mesure_get[0].id)
+            else:
+                mesure_get = Mesure()
+                mesure_get.nom_mesure = mesure
+                mesure_get.donnees = list()
+            ventes_mes = ventes_dataframe[ventes_dataframe.typeVente == mesure].groupby('date').sum()
+            if not ventes_mes.empty:
+                for i in range(0, len(ventes_mes.values)):
+                    vent = VenteData()
+                    vent.vente = ventes_mes.values[i]
+                    vent.date = ventes_mes.index[i]
+                    mesure_get.donnees.append(vent)
+                mesure_get.save()
+
+        # Sauvegard du contenu du fichier et des paramétres
+        parametre.save()
+        fichier.save()
         message = 'Fichier importé avec succès !'
     except UnboundLocalError as e:
         message = e
