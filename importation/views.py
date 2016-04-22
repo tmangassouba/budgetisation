@@ -241,6 +241,7 @@ def traitement(datatframe, description):
                             vent.date = ventes_zone.index[i]
                             zone_get.donnees.append(vent)
                         zone_get.save()
+                # fin mise à jour zone
 
                 # Mise à jour dimension (type de consommation)
                 type_conso_get = DimensionTypeConsommation.objects.filter(nom_mesure=mesure,
@@ -262,6 +263,7 @@ def traitement(datatframe, description):
                         vent.date = ventes_dim.index[i]
                         type_conso_get.donnees.append(vent)
                     type_conso_get.save()
+                # fin mise à jour dimension
 
             # Mise à jour Mesure (Type de vente)
             mesure_get = Mesure.objects.filter(nom_mesure=mesure)
@@ -279,6 +281,7 @@ def traitement(datatframe, description):
                     vent.date = ventes_mes.index[i]
                     mesure_get.donnees.append(vent)
                 mesure_get.save()
+            # fin mise à jour mesure
 
         # Sauvegard du contenu du fichier et des paramétres
         parametre.save()
@@ -294,20 +297,63 @@ def traitement(datatframe, description):
 
 def delete_file(request, id_file):
     """
-    Supprimer un fichier importer.
+    Supprimer un fichier importer et mis à jour des mesures et dimentions
     :param request:
-    :param id_file:bIdentifiant du fichier
+    :param id_file: Identifiant du fichier
     :return:
     """
     page = "import"
+    try:
+        file_cont = Fichier.objects.get(id=id_file)
+    except Fichier.DoesNotExist:
+        raise Http404
+    except Exception:
+        raise Http404
+
     if request.method == "POST":
         try:
-            file_cont = Fichier.objects.get(id=id_file)
-            file_cont.delete()
-            message = "Fichier supprimer avec succès!!"
-            return redirect('files_list')
-        except:
-            raise Http404
+            # Récupérer les données dans un Data Frame
+            ventes = pd.DataFrame(list(), columns=("typeVente", "typeConsommation", "zone", "ville", "date", "vente"))
+            for vente in file_cont.ventes:
+                ligne_vente = [vente.typeVente, vente.typeConsommation, vente.zone, vente.ville, vente.date, vente.vente]
+                ventes.loc[len(ventes)] = ligne_vente
+
+            # Get parameters
+            parametre = Parametre.objects[:1]
+            if not parametre:
+                raise Exception("Delete_error_no_panameter")
+            annee_min = parametre.annee_min
+            annee_max = parametre.annee_max
+            mesures = set(parametre.liste_mesure)
+            type_consommations = set(parametre.liste_type_consommations)
+            zones = set(parametre.liste_zone)
+            villes = set(parametre.liste_ville)
+
+            # Mise à jour des données des mesures et des dimensions
+            """for mesure in mesures:
+                for conso in type_consommations:
+                    for zone in zones:
+                        ventes_zone = ventes[(ventes.typeVente == mesure) &
+                                             (ventes.typeConsommation == conso) &
+                                             (ventes.zone == zone)
+                                             ].groupby('date').sum()
+                        if not ventes_zone.empty:
+                            for vz in ventes_zone:
+                                lzone = DimensionZone.objects(nom_mesure=mesure,
+                                                              nom_type_consommation=conso,
+                                                              nom_zone=zone,
+                                                              donnees__date=vz.date
+                                                              )[:1]
+                                lzone.donnees.vente = lzone.donnees.vente - vz.vente
+                                if lzone.donnees.vente == 0:
+                                    lzone.donnees.remove()
+                                lzone.save()"""
+
+            # file_cont.delete()
+            message = "Fichier supprimé avec succès !"
+            # return redirect('files_list', locals())
+        except Exception as e:
+            message = e
 
     return render(request, 'importation/delete_file.html', locals())
 

@@ -4,15 +4,27 @@
 
 {% block contentImportation %}
 
+<!-- Message -->
+{% if message %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fa fa-info-circle"></i> {{ message }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <div class="col-lg-12">
         <h3>Etes vous sûr de vouloir supprimer ce fichier ?</h3>
-        <form role="form" method="post" action="">
+        <form role="form" method="post" action="{% url 'delete_file' id_file %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Oui</button>
             <a href="{% url 'files_list' %}"><button type="button" class="btn btn-default">Non</button></a>
         </form>
     </div>
 </div>
-
+{{ ventes }}
 {% endblock %}
