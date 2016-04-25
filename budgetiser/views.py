@@ -1,16 +1,32 @@
 from django.shortcuts import render
-from importation.models import Fichier
+from importation.models import Fichier, Mesure, Parametre
 from budgetiser.forms import PrevisionForm
 from datetime import datetime
 import pandas as pd
-import numpy as np
+# import numpy as np
 import pycast as pc
 
 
 # Effectuer l'analyse descriptive
 def analyse_desciptive(request):
     page = "budget"
-    # fichiers = Fichier.objects.all()
+
+    mesures = Mesure.objects.all()
+
+    parametres = Parametre.objects.all()
+    an_max = int(parametres[0].annee_max)
+    an_min = int(parametres[0].annee_min)
+    if (parametres[0].annee_min - 5) > an_min:
+        an_min = parametres[0].annee_min - 5
+    annees = list()
+    for i in range(an_min, an_max + 1):
+        annees.append(i)
+
+    x_axis = list()
+
+    for annee in range(an_min, (an_max + 1), 1):
+        for mois in range(1, 13):
+            x_axis.append(datetime(annee, mois, 1))
 
     return render(request, 'budgetiser/analyse.html', locals())
 

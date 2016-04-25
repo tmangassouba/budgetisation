@@ -1,5 +1,106 @@
 {% extends "budgetiser/layout.html" %}
 
+{% block extrajs %}
+{% load static %}
+    <script type="text/javascript" src="{% static 'Highcharts/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/exporting.js' %}"></script>
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            Chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'container',
+                    type: 'areaspline',
+                    /*type: 'spline'*/
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Statistiques pour le types de ventes',
+                    align: 'left',
+                },
+                subtitle: {
+                    text: 'Statistiques de {{ an_min }} à {{ an_max }}',
+                    align: 'left',
+                },
+                legend: {
+                    align: 'right',
+                    verticalAlign: 'top',
+                    layout: 'above'
+                },
+                xAxis: {
+                    categories: [
+                        {% for x in x_axis %}
+                            "{{ x|date:"M Y" }}",
+                        {% endfor %}
+                    ],
+                    tickInterval: 1
+                },
+                yAxis: {
+                    title: {
+                        text: null,
+                    },
+                    min: 0
+                },
+                plotOptions: {
+                    series: {
+                        marker: {
+                            radius: 3
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 2
+                            }
+                        },
+                    }
+                },
+                series: [
+                    {% for mesure in mesures %}
+                        {
+                            name: '{{ mesure.nom_mesure }}',
+                            data: [
+                                {% for donnee in mesure.donnees %}
+                                    {
+                                        y: {{ donnee.vente }},
+                                        x: "{{ donnee.date|date:"M Y" }}",
+                                        name: "{{ donnee.date|date:"M Y" }}",
+                                    },
+                                {% endfor %}
+                            ],
+                        },
+                    {% endfor %}
+                ]
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block subcontent %}
 
+{% if message %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fa fa-info-circle"></i> {{ message }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        {% for mesure in mesures %}
+            <a title="Afficher les statistiques" href="{% url 'analyse_type_vente' %}?type_vente={{ mesure.nom_mesure }}" style="text-decoration: none;">
+                <button type="button" class="btn btn-default">{{ mesure.nom_mesure }}</button>
+            </a>
+        {% endfor %}
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div id="container" ></div>
+</div>
 {% endblock %}
