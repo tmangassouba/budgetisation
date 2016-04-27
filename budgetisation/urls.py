@@ -27,7 +27,6 @@ urlpatterns = [
     url(r'^import/delete_file/(?P<id_file>[a-z\d]+)$', importer.delete_file, name='delete_file'),
     url(r'^import/edit_file/(?P<id_file>[a-z\d]+)$', importer.edit_file, name='edit_file'),
     # Budgetiser
-    url(r'^budgetisation/analyse$', budget.analyse_desciptive, name='analyse'),
-    url(r'^budgetisation/analyse$', budget.analyse_desciptive, name='analyse_type_vente'),
+    url(r'^budgetisation/analyse/$', budget.analyse_desciptive, name='analyse'),
     url(r'^budgetisation/prevision$', budget.prevision, name='prevision'),
 ]

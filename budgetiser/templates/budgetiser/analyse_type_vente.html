@@ -1,0 +1,233 @@
+{% extends "budgetiser/layout.html" %}
+
+{% block extrajs %}
+{% load static %}
+    <script type="text/javascript" src="{% static 'Highcharts/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/exporting.js' %}"></script>
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            Chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'conso',
+                    type: 'areaspline',
+                    height: 550,
+                    /*type: 'spline'*/
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: null,
+                    align: 'left',
+                },
+                /*subtitle: {
+                    text: 'Statistiques des types de consommations de {{ an_min }} à {{ an_max }}',
+                    align: 'left',
+                },*/
+                xAxis: {
+                    categories: [
+                        {% for x in x_axis %}
+                            "{{ x|date:"M Y" }}",
+                        {% endfor %}
+                    ],
+                    tickInterval: 1
+                },
+                yAxis: {
+                    title: {
+                        text: null,
+                    },
+                    min: 0
+                },
+                credits: {
+                    text: null,
+                },
+                plotOptions: {
+                    series: {
+                        marker: {
+                            radius: 3
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 2
+                            }
+                        },
+                    }
+                },
+                series: [
+                    {% for data in type_conso_data %}
+                        {
+                            name: '{{ data.nom_type_consommation }}',
+                            data: [
+                                {% for donn in data.donnees %}
+                                    ["{{ donn.date|date:"M Y" }}",
+                                        {% if donn.vente %}
+                                            {{ donn.vente }}
+                                        {% else %}
+                                            null,
+                                        {% endif %}
+                                    ],
+                                {% endfor %}
+
+                                /*{% for abs in x_axis %}
+                                    {% if abs in data.donnees %}
+                                        {% for donn in data.donnees %}
+                                            {% if abs == donn.date %}
+                                                {{ donn.vente }},
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        null,
+                                    {% endif %}
+                                {% endfor %}*/
+                            ],
+                        },
+                    {% endfor %}
+                ]
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            Chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'zone',
+                    type: 'areaspline',
+                    height: 550,
+                    /*type: 'spline'*/
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Statistiques des zones pour {{ type_vente }} de {{ an_min }} à {{ an_max }}',
+                    align: 'left',
+                },
+                /*subtitle: {
+                    text: 'Statistiques des types de consommations de {{ an_min }} à {{ an_max }}',
+                    align: 'left',
+                },
+                legend: {
+                    layout: 'vertical',
+                },*/
+                xAxis: {
+                    categories: [
+                        {% for x in x_axis %}
+                            "{{ x|date:"M Y" }}",
+                        {% endfor %}
+                    ],
+                    tickInterval: 1
+                },
+                yAxis: {
+                    title: {
+                        text: null,
+                    },
+                    min: 0
+                },
+                credits: {
+                    text: null,
+                },
+                plotOptions: {
+                    series: {
+                        marker: {
+                            radius: 3
+                        },
+                        lineWidth: 1,
+                        states: {
+                            hover: {
+                                lineWidth: 2
+                            }
+                        },
+                    }
+                },
+                series: [
+                    {% for data in zone_data %}
+                        {
+                            name: '{{ data.nom_zone }}',
+                            data: [
+                                {% for donn in data.donnees %}
+                                    ["{{ donn.date|date:"M Y" }}",
+                                        {% if donn.vente %}
+                                            {{ donn.vente }}
+                                        {% else %}
+                                            null,
+                                        {% endif %}
+                                    ],
+                                {% endfor %}
+
+                                /*{% for abs in x_axis %}
+                                    {% if abs in data.donnees %}
+                                        {% for donn in data.donnees %}
+                                            {% if abs == donn.date %}
+                                                {{ donn.vente }},
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        null,
+                                    {% endif %}
+                                {% endfor %}*/
+                            ],
+                        },
+                    {% endfor %}
+                ]
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block subcontent %}
+
+{% if message %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fa fa-info-circle"></i> {{ message }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if type_conso_data %}
+<div class="row">
+    <div class="col-lg-12">
+        {% for mesure in parametres.liste_mesure %}
+            <a title="Afficher les statistiques" href="{% url 'analyse' %}?type_vente={{ mesure }}" style="text-decoration: none;">
+                <button type="button" {% if type_vente == mesure %} class="btn btn-default active" {% else %} class="btn btn-default" {% endif %} >{{ mesure }}</button>
+            </a>
+        {% endfor %}
+        <hr>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des types de consommations pour les {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
+            </div>
+            <div class="panel-body">
+                <div id="conso" class="col-lg-12" ></div>
+            </div>
+        </div>
+    </div>
+    <!--<div id="conso" class="col-lg-12" ></div>-->
+</div>
+
+<div class="row">
+    <div class="col-lg-12" ></div>
+</div>
+
+<div class="row"><!-- -->
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des types de consommations pour les {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
+            </div>
+            <div class="panel-body">
+                <div id="zone" class="col-lg-12" ></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

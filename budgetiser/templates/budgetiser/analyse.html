@@ -12,6 +12,7 @@
                 chart: {
                     renderTo: 'container',
                     type: 'areaspline',
+                    height: 430,
                     /*type: 'spline'*/
                     zoomType: 'xy'
                 },
@@ -34,13 +35,16 @@
                             "{{ x|date:"M Y" }}",
                         {% endfor %}
                     ],
-                    tickInterval: 1
+                    tickInterval: null
                 },
                 yAxis: {
                     title: {
                         text: null,
                     },
                     min: 0
+                },
+                credits: {
+                    text: null,
                 },
                 plotOptions: {
                     series: {
@@ -89,10 +93,11 @@
 </div>
 {% endif %}
 
+{% if parametres %}
 <div class="row">
     <div class="col-lg-12">
         {% for mesure in mesures %}
-            <a title="Afficher les statistiques" href="{% url 'analyse_type_vente' %}?type_vente={{ mesure.nom_mesure }}" style="text-decoration: none;">
+            <a title="Afficher les statistiques" href="{% url 'analyse' %}?type_vente={{ mesure.nom_mesure }}" style="text-decoration: none;">
                 <button type="button" class="btn btn-default">{{ mesure.nom_mesure }}</button>
             </a>
         {% endfor %}
@@ -101,6 +106,7 @@
 </div>
 
 <div class="row">
-    <div id="container" ></div>
+    <div class="col-lg-12" id="container" ></div>
 </div>
+{% endif %}
 {% endblock %}

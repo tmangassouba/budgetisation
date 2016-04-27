@@ -16,7 +16,7 @@ class Vente(EmbeddedDocument):
     zone = StringField(required=True)
     ville = StringField(required=True)
     date = DateTimeField(required=True)
-    vente = LongField(required=True)
+    vente = LongField(required=False)
 
 
 class Fichier(Document):
@@ -28,7 +28,7 @@ class Fichier(Document):
 
 
 class VenteData(EmbeddedDocument):
-    vente = LongField()
+    vente = LongField(required=False)
     date = DateTimeField()
 
 
@@ -45,9 +45,17 @@ class DimensionTypeConsommation(Document):
 
 class DimensionZone(Document):
     nom_mesure = StringField()
+    nom_zone = StringField()
+    donnees = ListField(EmbeddedDocumentField(VenteData))
+
+
+"""
+class DimensionZone(Document):
+    nom_mesure = StringField()
     nom_type_consommation = StringField()
     nom_zone = StringField()
     donnees = ListField(EmbeddedDocumentField(VenteData))
+"""
 
 
 class Parametre(Document):

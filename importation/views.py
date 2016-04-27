@@ -1,6 +1,6 @@
 # coding=utf8
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import Http404
 from importation.forms import FichierForm
 from importation.models import Fichier, Vente, Parametre, DimensionTypeConsommation, DimensionZone, Mesure, VenteData
@@ -203,7 +203,7 @@ def traitement(datatframe, description):
                     # Mettre les ventes dans un Data Frame.
                     ventes_dataframe.loc[len(ventes_dataframe)] = [raw[1], raw[2], raw[3], raw[4], vente.date, raw[i]]
             if ventes_dataframe.empty:
-                raise Exception("Data frame  datas error !")
+                raise Exception("Data frame dat error !")
 
         # Mis à jour des paramètres.
         if not parametre:
@@ -217,33 +217,29 @@ def traitement(datatframe, description):
 
         # Mis à jour des données des mesures et des types de consommation et des zones
         for mesure in mesures:
-            for conso in type_consommations:
-                # Mise à jour zone
-                for zone in zones:
-                    zone_get = DimensionZone.objects.filter(nom_mesure=mesure,
-                                                            nom_type_consommation=conso,
-                                                            nom_zone=zone)
-                    if zone_get:
-                        zone_get = DimensionZone.objects.get(id=zone_get[0].id)
-                    else:
-                        zone_get = DimensionZone()
-                        zone_get.nom_mesure = mesure
-                        zone_get.nom_type_consommation = conso
-                        zone_get.nom_zone = zone
-                        zone_get.donnees = list()
-                    ventes_zone = ventes_dataframe[(ventes_dataframe.typeVente == mesure) &
-                                                   (ventes_dataframe.typeConsommation == conso) &
-                                                   (ventes_dataframe.zone == zone)].groupby('date').sum()
-                    if not ventes_zone.empty:
-                        for i in range(0, len(ventes_zone.values)):
-                            vent = VenteData()
-                            vent.vente = ventes_zone.values[i]
-                            vent.date = ventes_zone.index[i]
-                            zone_get.donnees.append(vent)
-                        zone_get.save()
-                # fin mise à jour zone
+            # Mise à jour zone
+            for zone in zones:
+                zone_get = DimensionZone.objects.filter(nom_mesure=mesure, nom_zone=zone)
+                if zone_get:
+                    zone_get = DimensionZone.objects.get(id=zone_get[0].id)
+                else:
+                    zone_get = DimensionZone()
+                    zone_get.nom_mesure = mesure
+                    zone_get.nom_zone = zone
+                    zone_get.donnees = list()
+                ventes_zone = ventes_dataframe[(ventes_dataframe.typeVente == mesure) &
+                                               (ventes_dataframe.zone == zone)].groupby('date').sum()
+                if not ventes_zone.empty:
+                    for i in range(0, len(ventes_zone.values)):
+                        vent = VenteData()
+                        vent.vente = ventes_zone.values[i]
+                        vent.date = ventes_zone.index[i]
+                        zone_get.donnees.append(vent)
+                    zone_get.save()
+            # fin mise à jour zone
 
-                # Mise à jour dimension (type de consommation)
+            # Mise à jour dimension (type de consommation)
+            for conso in type_consommations:
                 type_conso_get = DimensionTypeConsommation.objects.filter(nom_mesure=mesure,
                                                                           nom_type_consommation=conso)
                 if type_conso_get:
@@ -263,7 +259,7 @@ def traitement(datatframe, description):
                         vent.date = ventes_dim.index[i]
                         type_conso_get.donnees.append(vent)
                     type_conso_get.save()
-                # fin mise à jour dimension
+            # fin mise à jour dimension(type de consommation)
 
             # Mise à jour Mesure (Type de vente)
             mesure_get = Mesure.objects.filter(nom_mesure=mesure)

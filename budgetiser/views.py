@@ -1,5 +1,7 @@
+# coding=utf8
 from django.shortcuts import render
-from importation.models import Fichier, Mesure, Parametre
+from django.http import Http404
+from importation.models import Fichier, Mesure, Parametre, DimensionTypeConsommation, DimensionZone
 from budgetiser.forms import PrevisionForm
 from datetime import datetime
 import pandas as pd
@@ -7,26 +9,43 @@ import pandas as pd
 import pycast as pc
 
 
-# Effectuer l'analyse descriptive
 def analyse_desciptive(request):
+    """
+    Effectuer analyse descriptive.
+    :param request:
+    :return:
+    """
     page = "budget"
 
-    mesures = Mesure.objects.all()
-
+    # get paramters
     parametres = Parametre.objects.all()
-    an_max = int(parametres[0].annee_max)
-    an_min = int(parametres[0].annee_min)
-    if (parametres[0].annee_min - 5) > an_min:
-        an_min = parametres[0].annee_min - 5
-    annees = list()
-    for i in range(an_min, an_max + 1):
-        annees.append(i)
+    if parametres:
+        parametres = parametres[0]
+        an_max = int(parametres.annee_max)
+        an_min = int(parametres.annee_min)
+        if (parametres.annee_min - 5) > an_min:
+            an_min = parametres.annee_min - 5
+        annees = list()
+        for i in range(an_min, an_max + 1):
+            annees.append(i)
 
-    x_axis = list()
+        # Liste des années
+        x_axis = list()
+        for annee in range(an_min, (an_max + 1), 1):
+            for mois in range(1, 13):
+                x_axis.append(datetime(annee, mois, 1))
 
-    for annee in range(an_min, (an_max + 1), 1):
-        for mois in range(1, 13):
-            x_axis.append(datetime(annee, mois, 1))
+        if request.GET.get('type_vente'):
+            type_vente = request.GET['type_vente']
+            type_conso_data = DimensionTypeConsommation.objects.filter(nom_mesure=type_vente)
+            zone_data = DimensionZone.objects.filter(nom_mesure=type_vente)
+            """if not type_conso_data or not zone_data:
+                raise Http404"""
+            return render(request, 'budgetiser/analyse_type_vente.html', locals())
+
+        mesures = Mesure.objects.all()
+    else:
+        message = "No data available!"
 
     return render(request, 'budgetiser/analyse.html', locals())
 
