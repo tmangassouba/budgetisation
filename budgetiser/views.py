@@ -38,9 +38,34 @@ def analyse_desciptive(request):
         if request.GET.get('type_vente'):
             type_vente = request.GET['type_vente']
             type_conso_data = DimensionTypeConsommation.objects.filter(nom_mesure=type_vente)
-            zone_data = DimensionZone.objects.filter(nom_mesure=type_vente)
-            """if not type_conso_data or not zone_data:
-                raise Http404"""
+            # zone_data = DimensionZone.objects.filter(nom_mesure=type_vente)
+            zones_data = DimensionZone.objects.filter(nom_mesure=type_vente)
+            if not type_conso_data or not zones_data:
+                raise Http404
+            # --------------------------------------------------------
+
+            zone_data = list()
+            for zone in zones_data:
+                list_d_z = dict()
+                list_d_z['nom_zone'] = zone.nom_zone
+                d_z_s = list()
+                dates_zone = list()
+                for date in zone.donnees:
+                    dates_zone.append(date.date)
+                for xx in x_axis:
+                    d_z = dict()
+                    d_z['date'] = xx
+                    if xx in dates_zone:
+                        for donnee in zone.donnees:
+                            if xx == donnee.date:
+                                d_z['vente'] = donnee.vente
+                                break
+                    else:
+                        d_z['vente'] = 'null'
+                    d_z_s.append(d_z)
+                list_d_z['donnees'] = d_z_s
+                zone_data.append(list_d_z)
+            # --------------------------------------------------------
             return render(request, 'budgetiser/analyse_type_vente.html', locals())
 
         mesures = Mesure.objects.all()

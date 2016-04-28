@@ -99,7 +99,7 @@
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Statistiques des zones pour {{ type_vente }} de {{ an_min }} à {{ an_max }}',
+                    text: null,
                     align: 'left',
                 },
                 /*subtitle: {
@@ -145,26 +145,8 @@
                             name: '{{ data.nom_zone }}',
                             data: [
                                 {% for donn in data.donnees %}
-                                    ["{{ donn.date|date:"M Y" }}",
-                                        {% if donn.vente %}
-                                            {{ donn.vente }}
-                                        {% else %}
-                                            null,
-                                        {% endif %}
-                                    ],
+                                    ["{{ donn.date|date:"M Y" }}", {{ donn.vente }}],
                                 {% endfor %}
-
-                                /*{% for abs in x_axis %}
-                                    {% if abs in data.donnees %}
-                                        {% for donn in data.donnees %}
-                                            {% if abs == donn.date %}
-                                                {{ donn.vente }},
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        null,
-                                    {% endif %}
-                                {% endfor %}*/
                             ],
                         },
                     {% endfor %}
@@ -175,7 +157,7 @@
 {% endblock %}
 
 {% block subcontent %}
-
+ {{ x_axis }}<br>{{ dates }}
 {% if message %}
 <div class="row">
     <div class="col-lg-12">
@@ -185,9 +167,8 @@
         </div>
     </div>
 </div>
-{% endif %}
+{% else %}
 
-{% if type_conso_data %}
 <div class="row">
     <div class="col-lg-12">
         {% for mesure in parametres.liste_mesure %}
@@ -195,7 +176,7 @@
                 <button type="button" {% if type_vente == mesure %} class="btn btn-default active" {% else %} class="btn btn-default" {% endif %} >{{ mesure }}</button>
             </a>
         {% endfor %}
-        <hr>
+        <br><br>
     </div>
 </div>
 
@@ -221,7 +202,7 @@
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des types de consommations pour les {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
+                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des zones pour {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
             </div>
             <div class="panel-body">
                 <div id="zone" class="col-lg-12" ></div>
