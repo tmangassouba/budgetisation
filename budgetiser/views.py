@@ -37,35 +37,14 @@ def analyse_desciptive(request):
 
         if request.GET.get('type_vente'):
             type_vente = request.GET['type_vente']
-            type_conso_data = DimensionTypeConsommation.objects.filter(nom_mesure=type_vente)
+            types_conso_data = DimensionTypeConsommation.objects.filter(nom_mesure=type_vente)
             # zone_data = DimensionZone.objects.filter(nom_mesure=type_vente)
             zones_data = DimensionZone.objects.filter(nom_mesure=type_vente)
-            if not type_conso_data or not zones_data:
+            if not types_conso_data or not zones_data:
                 raise Http404
-            # --------------------------------------------------------
+            type_conso_data = consommation_data_to_graph_data(types_conso_data, x_axis)
+            zone_data = zone_data_to_graph_data(zones_data, x_axis)
 
-            zone_data = list()
-            for zone in zones_data:
-                list_d_z = dict()
-                list_d_z['nom_zone'] = zone.nom_zone
-                d_z_s = list()
-                dates_zone = list()
-                for date in zone.donnees:
-                    dates_zone.append(date.date)
-                for xx in x_axis:
-                    d_z = dict()
-                    d_z['date'] = xx
-                    if xx in dates_zone:
-                        for donnee in zone.donnees:
-                            if xx == donnee.date:
-                                d_z['vente'] = donnee.vente
-                                break
-                    else:
-                        d_z['vente'] = 'null'
-                    d_z_s.append(d_z)
-                list_d_z['donnees'] = d_z_s
-                zone_data.append(list_d_z)
-            # --------------------------------------------------------
             return render(request, 'budgetiser/analyse_type_vente.html', locals())
 
         mesures = Mesure.objects.all()
@@ -73,6 +52,70 @@ def analyse_desciptive(request):
         message = "No data available!"
 
     return render(request, 'budgetiser/analyse.html', locals())
+
+
+def consommation_data_to_graph_data(cosommations_data, x_axis):
+    """
+    Pour chaque date de l'axe des abscisse mettre 'null' si elle n'a de vente.
+    :param cosommations_data: ventes par type de consommation.
+    :param x_axis: Dates de l'axe des abscisse
+    :return: Ventes par type de consommation avec 'null' pour les mois qui n'ont pas de ventes
+    """
+    cosommation_data = list()
+    for zone in cosommations_data:
+        list_d_z = dict()
+        list_d_z['nom_type_consommation'] = zone.nom_type_consommation
+        d_z_s = list()
+        dates_zone = list()
+        for date in zone.donnees:
+            dates_zone.append(date.date)
+        for xx in x_axis:
+            d_z = dict()
+            d_z['date'] = xx
+            if xx in dates_zone:
+                for donnee in zone.donnees:
+                    if xx == donnee.date:
+                        d_z['vente'] = donnee.vente
+                        break
+            else:
+                d_z['vente'] = 'null'
+            d_z_s.append(d_z)
+        list_d_z['donnees'] = d_z_s
+        cosommation_data.append(list_d_z)
+
+    return cosommation_data
+
+
+def zone_data_to_graph_data(zones_data, x_axis):
+    """
+    Pour chaque date de l'axe des abscisse mettre 'null' si elle n'a de vente.
+    :param zones_data: Ventes par zone.
+    :param x_axis: Dates de l'axe des abscisse.
+    :return: Ventes par zone avec 'null' pour les mois qui n'ont pas de ventes
+    """
+    zone_data = list()
+    for zone in zones_data:
+        list_d_z = dict()
+        list_d_z['nom_zone'] = zone.nom_zone
+        d_z_s = list()
+        dates_zone = list()
+        for date in zone.donnees:
+            dates_zone.append(date.date)
+        for xx in x_axis:
+            d_z = dict()
+            d_z['date'] = xx
+            if xx in dates_zone:
+                for donnee in zone.donnees:
+                    if xx == donnee.date:
+                        d_z['vente'] = donnee.vente
+                        break
+            else:
+                d_z['vente'] = 'null'
+            d_z_s.append(d_z)
+        list_d_z['donnees'] = d_z_s
+        zone_data.append(list_d_z)
+
+    return zone_data
 
 
 def prevision(request):

@@ -156,59 +156,72 @@
     </script>
 {% endblock %}
 
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li class="active">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="diemesion" value="{{ type_vente }}">
+                <button type="submit" class="close">
+                    <i class="glyphicon glyphicon-calendar"></i> Prévisions
+                </button>
+            </form>
+        </li>
+    </ol>
+{% endblock %}
+
 {% block subcontent %}
- {{ x_axis }}<br>{{ dates }}
-{% if message %}
-<div class="row">
-    <div class="col-lg-12">
-        <div class="alert alert-info alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <i class="fa fa-info-circle"></i> {{ message }}
-        </div>
-    </div>
-</div>
-{% else %}
 
-<div class="row">
-    <div class="col-lg-12">
-        {% for mesure in parametres.liste_mesure %}
-            <a title="Afficher les statistiques" href="{% url 'analyse' %}?type_vente={{ mesure }}" style="text-decoration: none;">
-                <button type="button" {% if type_vente == mesure %} class="btn btn-default active" {% else %} class="btn btn-default" {% endif %} >{{ mesure }}</button>
-            </a>
-        {% endfor %}
-        <br><br>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des types de consommations pour les {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
-            </div>
-            <div class="panel-body">
-                <div id="conso" class="col-lg-12" ></div>
+    {% if message %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-info alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="fa fa-info-circle"></i> {{ message }}
+                </div>
             </div>
         </div>
-    </div>
-    <!--<div id="conso" class="col-lg-12" ></div>-->
-</div>
-
-<div class="row">
-    <div class="col-lg-12" ></div>
-</div>
-
-<div class="row"><!-- -->
-    <div class="col-lg-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des zones pour {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
-            </div>
-            <div class="panel-body">
-                <div id="zone" class="col-lg-12" ></div>
+    {% else %}
+        <div class="row">
+            <div class="col-lg-12">
+                {% for mesure in parametres.liste_mesure %}
+                    <a title="Afficher les statistiques" href="{% url 'analyse' %}?type_vente={{ mesure }}" style="text-decoration: none;">
+                        <button type="button" {% if type_vente == mesure %} class="btn btn-default active" {% else %} class="btn btn-default" {% endif %} >{{ mesure }}</button>
+                    </a>
+                {% endfor %}
+                <br><br>
             </div>
         </div>
-    </div>
-</div>
-{% endif %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des types de consommations pour les {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="conso" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+            <!--<div id="conso" class="col-lg-12" ></div>-->
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12" ></div>
+        </div>
+
+        <div class="row"><!-- -->
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-bar-chart-o fa-fw"></i> Statistiques des zones pour {{ type_vente }} de {{ an_min }} à {{ an_max }}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="zone" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
