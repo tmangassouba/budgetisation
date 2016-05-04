@@ -31,8 +31,7 @@ def files_view(request):
     return render(request, 'importation/files_list.html', locals())
 
 
-# Vue pour afficher le contenu d'un ficheir importé
-def file_view(request, id_file):
+def file_content_view(request, id_file):
     """
     Le contenu d'un fichier importé.
     :param request:

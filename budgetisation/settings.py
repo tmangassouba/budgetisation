@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'importation',
     'budgetiser',
+    'suivi',
 ]
 
 MIDDLEWARE_CLASSES = [

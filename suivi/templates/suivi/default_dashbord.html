@@ -1,0 +1,144 @@
+{% extends "budgetiser/layout.html" %}
+
+{% block extrajs %}
+{% load static %}
+    <script type="text/javascript" src="{% static 'Highcharts/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/exporting.js' %}"></script>
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            {% for mesure in mesures %}
+                Chart = new Highcharts.Chart({
+                    chart: {
+                        renderTo: '{{ mesure.nom_mesure }}',
+                        type: 'areaspline',
+                        height: 300,
+                        /*type: 'spline'*/
+                        zoomType: 'xy'
+                    },
+                    title: {
+                        text: null /*'Statistiques pour le types de ventes',
+                        align: 'left',*/
+                    },
+                    subtitle: {
+                        text: null /*'Statistiques de {{ an_min }} à {{ an_max }}',
+                        align: 'left',*/
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    xAxis: {
+                        categories: [
+                            {% for x in x_axis %}
+                                "{{ x|date:"M Y" }}",
+                            {% endfor %}
+                        ],
+                        tickInterval: null
+                    },
+                    yAxis: {
+                        title: {
+                            text: null,
+                        },
+                        min: 0
+                    },
+                    credits: {
+                        text: null,
+                    },
+                    plotOptions: {
+                        series: {
+                            marker: {
+                                radius: 3
+                            },
+                            lineWidth: 1,
+                            states: {
+                                hover: {
+                                    lineWidth: 2
+                                }
+                            },
+                        }
+                    },
+                    series: [
+
+                            {
+                                name: '{{ mesure.nom_mesure }}',
+                                data: [
+                                    {% for donnee in mesure.donnees %}
+                                        {
+                                            y: {{ donnee.vente }},
+                                            x: "{{ donnee.date|date:"M Y" }}",
+                                            name: "{{ donnee.date|date:"M Y" }}",
+                                        },
+                                    {% endfor %}
+                                ],
+                            },
+                    ]
+                });
+            {% endfor %}
+        });
+    </script>
+{% endblock %}
+
+{% block subcontent %}
+
+    {% if message %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-info alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="fa fa-info-circle"></i> {{ message }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if parametres %}
+        <div class="row">
+            {% for mesure in liste_mesure %}
+                <div class="col-lg-6">
+                    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-bar-chart-o fa-fw"></i> {{ mesure }}<!-- - {{ an_min }}/{{ an_max }}-->
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div id="{{ mesure }}" class="col-lg-12" ></div>
+                            <div class="text-right">
+                                <a href="#">View Details <i class="fa fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-bar-chart-o fa-fw"></i>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="pourcentage" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-bar-chart-o fa-fw"></i>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="part" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
