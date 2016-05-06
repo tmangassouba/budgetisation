@@ -33,6 +33,7 @@ def dashboard(request):
 
         mesures = Mesure.objects.all()
 
+        # Pies data
         pies = list()
         for mesure in mesures:
             nom = mesure.nom_mesure
@@ -41,6 +42,42 @@ def dashboard(request):
                 vente += donnee.vente
             pie = {"nom": nom, "vente": vente}
             pies.append(pie)
+
+        # Evolution data
+        evolution = list()
+        for mesure in mesures:
+            mesure_data = dict()
+            mesure_data['nom_mesure'] = mesure.nom_mesure
+            globale = 0
+            globale_annee_prec = 0
+            # Vente du mois de décembre de l'année précédente
+            initial = -1
+            for donnee in mesure.donnees:
+                if donnee.date == datetime(an_max-1, 12, 1):
+                    initial = donnee.vente
+                if (donnee.date >= datetime(an_max-1, 1, 1)) and (donnee.date <= datetime(an_max-1, 12, 1)):
+                    globale_annee_prec += donnee.vente
+            # Ventes et évolutions
+            data = list()
+            for i in range(1, 13):
+                datai = dict()
+                ventei = evolutioni = '-'
+                for donnee in mesure.donnees:
+                    if donnee.date == datetime(an_max, i, 1):
+                        ventei = donnee.vente
+                        globale += donnee.vente
+                        if initial > 0:
+                            evolutioni = (float((ventei - initial)) / float(initial)) * 100
+                        if initial == 0:
+                            evolutioni = 100
+                        initial = ventei
+                        break
+                datai['vente'] = ventei
+                datai['evolution'] = evolutioni
+                data.append(datai)
+            mesure_data['data'] = data
+            mesure_data['vente_globale'] = float(globale - globale_annee_prec) / globale_annee_prec * 100
+            evolution.append(mesure_data)
     else:
         message = "No data available!"
 

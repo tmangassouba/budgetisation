@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'importation',
     'budgetiser',
     'suivi',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE_CLASSES = [
