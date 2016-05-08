@@ -5,7 +5,6 @@ from importation.models import Fichier, Mesure, Parametre, DimensionTypeConsomma
 from budgetiser.forms import PrevisionForm
 from datetime import datetime
 import pandas as pd
-# import numpy as np
 import pycast as pc
 
 

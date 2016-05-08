@@ -19,8 +19,10 @@ from budgetiser import views as budget
 from suivi import views as suivi
 
 urlpatterns = [
-    # importer
+    # suivi
     url(r'^$', suivi.dashboard, name='accueil'),
+    url(r'^suivi$', suivi.details, name='suivi'),
+    # importer
     url(r'^importer$', importer.importer, name='importer'),
     url(r'^import/files$', importer.files_view, name='files_list'),
     url(r'^import/files/(?P<id_file>[a-z\d]+)$', importer.file_content_view, name='file_cont'),

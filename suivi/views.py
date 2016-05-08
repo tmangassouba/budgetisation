@@ -1,8 +1,11 @@
 # coding=utf8
 
 from django.shortcuts import render
-from importation.models import Parametre, Mesure
+from importation.models import Parametre, Mesure, DimensionTypeConsommation, DimensionZone
+from forms import ParamForm
 from datetime import datetime
+from django.http import Http404
+from operator import itemgetter
 
 
 def dashboard(request):
@@ -82,3 +85,78 @@ def dashboard(request):
         message = "No data available!"
 
     return render(request, 'suivi/default_dashbord1.html', locals())
+
+
+def details(request):
+    """
+    Afficher les détails de chaque type de consommation.
+    :param request:
+    :return:
+    """
+    page = "tableaubord"
+    # get paramters
+    parametres = Parametre.objects.all()
+    if parametres:
+        parametres = parametres[0]
+        an_max = int(parametres.annee_max)
+        an_min = int(parametres.annee_min)
+
+        annees = list()
+        for i in range(an_min, an_max + 1):
+            annees.append(i)
+
+        selected_year = an_max
+        slected_dimesion = 'Types de consommations'
+
+        # Liste des années
+        x_axis = list()
+        for annee in range(an_min, (an_max + 1), 1):
+            for mois in range(1, 13):
+                x_axis.append(datetime(annee, mois, 1))
+
+        if request.GET.get('type_vente'):
+            type_vente = request.GET['type_vente']
+            types_vente_data = Mesure.objects.filter(nom_mesure=type_vente)
+
+            if not types_vente_data:
+                raise Http404
+
+            pies = None
+
+            if request.method == "POST":
+                form = ParamForm(request.POST)
+                if form.is_valid():
+                    selected_year = form.cleaned_data["annee"]
+                    slected_dimesion = form.cleaned_data["dimension"]
+
+            if slected_dimesion is "Types de consommations":
+                data = DimensionTypeConsommation.objects.filter(nom_mesure=type_vente)
+                pies = type_conso_pies_data(data, selected_year)
+
+            if slected_dimesion == "Zones":
+                date = DimensionZone.objects.filter(nom_mesure=type_vente)
+
+            if slected_dimesion == "Villes":
+                pass
+
+        pies = sorted(pies, key=itemgetter('vente'), reverse=True)
+
+        # mesures = Mesure.objects.all()
+    else:
+        message = "No data available!"
+
+    return render(request, 'suivi/suivi.html', locals())
+
+
+def type_conso_pies_data(dimensions, annee):
+    pies = list()
+    for dimension in dimensions:
+        nom = dimension.nom_type_consommation
+        vente = 0
+        for donnee in dimension.donnees:
+            if (donnee.date >= datetime(annee, 1, 1)) and (donnee.date <= datetime(annee, 12, 1)):
+                vente += donnee.vente
+        pie = {"nom": nom, "vente": vente}
+        pies.append(pie)
+
+    return pies

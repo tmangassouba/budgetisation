@@ -1,0 +1,189 @@
+{% extends "suivi/layout.html" %}
+{% load humanize %}
+{% block extrajs %}
+{% load static %}
+    <script type="text/javascript" src="{% static 'Highcharts/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Highcharts/exporting.js' %}"></script>
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            Chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'pourcentage',
+                    type: 'pie',
+                },
+                title: {
+                    text: null,
+                },
+                credits: {
+                    text: null,
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Vente',
+                    data: [
+                        {% for pie in pies %}
+                            ['{{ pie.nom }}', {{ pie.vente }}],
+                        {% endfor %}
+                    ]
+                }]
+            });
+        });
+    </script>
+
+    <script type="text/javascript">
+        var chart;
+        $(document).ready(function() {
+            Chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'bar_diagram',
+                    type: 'column',
+                    inverted: true
+                },
+                title: {
+                    text: null,
+                },
+                credits: {
+                    text: null,
+                },
+                xAxis: {
+                    categories: [ {% for pie in pies %} '{{ pie.nom }}', {% endfor %} ],
+                    lineWidth: 0,
+                    tickLength: 0,
+                    labels: {
+                        align: 'left',
+                        x: 0,
+                        y: -13,
+                        style: {
+                            fontWeight: 'bold'
+                        }
+                    }
+                },
+                yAxis: {
+                    title: null,
+                    labels: {
+                        enabled: false
+                    },
+                    type: 'logarithmic'
+                },
+                plotOptions: {
+                    column: {
+                        colorByPoint: true,
+                        dataLabels: {
+                            enabled: true,
+                            rotation: 0,
+                            y: 0,
+                            color: '#F4F4F4',
+                            formatter: function() {
+                                return Highcharts.numberFormat(this.y, 0);
+                            },
+                            x: -50,
+                            style: {
+                                fontWeight: 'bold'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    showInLegend: false,
+                    name: 'Vente',
+                    data: [
+                        {% for pie in pies %}
+                            {{ pie.vente }},
+                        {% endfor %}
+                    ]
+                }]
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block Dashboard %} / {{ type_vente }}{% endblock %}
+
+{% block subcontent %}
+
+    {% if message %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-info alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <i class="fa fa-info-circle"></i> {{ message }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if parametres %}
+        <div class="row">
+            <div class="col-lg-6">
+                <form role="form" method="post" action="">
+                    {% csrf_token %}
+                    <div class="form-group col-lg-4">
+                        <label>Année</label>
+                        <select class="form-control" name="annee">
+                            {% for an in annees %}
+                                <option value="{{ an }}" {% if selected_year == an %}selected{% endif %}>{{ an }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-lg-6">
+                        <label>Dimension</label>
+                        <select class="form-control" name="dimension">
+                            <option value="Types de consommations" {% if slected_dimesion == "Types de consommations" %}selected{% endif %}>Types de consommations</option>
+                            <option value="Zones" {% if slected_dimesion == "Zones" %}selected{% endif %}>Zones</option>
+                            <option value="Villes" {% if slected_dimesion == "Villes" %}selected{% endif %}>Villes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-lg-2">
+                        <label style="color: white">-</label>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-long-arrow-right"></i>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="pourcentage" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-yellow">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-bar-chart-o fa-fw"></i>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div id="bar_diagram" class="col-lg-12" ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %} {{ pies }}
